@@ -1,7 +1,5 @@
 #include "route_planner.h"
 #include <algorithm>
-#include <chrono>
-#include <thread>
 
 
 RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, float end_x, float end_y): m_Model(model) {
@@ -59,6 +57,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 bool Compare(RouteModel::Node *node1, RouteModel::Node *node2){
+    // This should be float instead of int.
     float f1 = node1->g_value + node1->h_value;
     float f2 = node2->g_value + node2->h_value;
     return f1 > f2;
@@ -127,20 +126,13 @@ void RoutePlanner::AStarSearch() {
     // std::cout << "start y: " << start_node->y << "\n";
 
     AddNeighbors(start_node);
-    bool flag = true;
+    start_node->visited = true;
     while(open_list.size() > 0)
     {
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        std::cout << open_list.size() << "\n";
         current_node = NextNode();
-        std::cout << "current x: " << current_node->x << "\n";
-        std::cout << "current y: " << current_node->y << "\n";
-        std::cout << "end x: " << end_node->x << "\n";
-        std::cout << "end y: " << end_node->y << "\n";
         if (current_node->x == end_node->x && current_node->y == end_node->y)
         {
             m_Model.path = ConstructFinalPath(current_node);
-            std::cout << "Found it" << "\n";
             return;
         }
         AddNeighbors(current_node);
